@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <td>
                 <label for="matiere_id">Matiere ID:</label>
             </td>
-            <td><input type="text" name="matiere_id" id="matiere_id" value="<?php echo $cours['matiere_id'] ?? ''; ?>" maxlength="50"></td>
+            <td><input type="text" name="matiere_id" id="matiere_id" value="<?php echo $cours['matiere_id'] ?? ''; ?>" maxlength="50" readonly></td>
         </tr>
         <tr>
             <td colspan="2" align="center">

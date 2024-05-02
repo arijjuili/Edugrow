@@ -1,8 +1,8 @@
 <?php
 include '../Controller/MatiereC.php';
 
-$matiereC = new MatiereC(); // Assuming you have a controller for "matieres" named MatiereC.php
-$matiereList = $matiereC->listMatieres(); // Retrieve matieres data
+$matiereC = new MatiereC(); 
+$matiereList = $matiereC->listMatieres(); 
 
 ?>
 

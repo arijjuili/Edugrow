@@ -8,7 +8,6 @@ class Matiere
     private $niveau;
     private $description;
 
-    // Constructor
     public function __construct($idm, $nom, $niveau, $description)
     {
         $this->idm = $idm;
@@ -17,7 +16,6 @@ class Matiere
         $this->description = $description;
     }
 
-    // Getters and Setters
     public function getIdm()
     {
         return $this->idm;
