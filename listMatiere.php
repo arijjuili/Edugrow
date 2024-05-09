@@ -1,10 +1,30 @@
 <?php
 include '../Controller/MatiereC.php';
 
-$matiereC = new MatiereC(); 
-$matiereList = $matiereC->listMatieres(); 
+$matiereC = new MatiereC();
+$matiereList = $matiereC->listMatieres();
 
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+if (!empty($search)) {
+    $matiereList = array_filter($matiereList, function ($matiere) use ($search) {
+        return stripos($matiere['nom'], $search) !== false ||
+               stripos($matiere['niveau'], $search) !== false;
+    });
+}
+
+$sortColumn = isset($_GET['sort']) ? $_GET['sort'] : '';
+$sortOrder = isset($_GET['order']) ? $_GET['order'] : 'asc'; 
+
+if ($sortColumn === 'niveau' || $sortColumn === 'nom') {
+    usort($matiereList, function ($a, $b) use ($sortColumn, $sortOrder) {
+        $result = strcasecmp($a[$sortColumn], $b[$sortColumn]);
+        return ($sortOrder === 'asc') ? $result : -$result;
+    });
+}
+// Counting statistics
+$totalMatieres = count($matiereList);
 ?>
+
 
 <html
 lang="en"
@@ -60,20 +80,29 @@ lang="en"
 <body>
     <center>
         <h1>Liste Des Matieres</h1>
-        <h2>
-            <a href="addMatiere.php">Ajouter une Matiere</a> <!-- Assuming you have a form for adding matieres named addMatiere.php -->
-        </h2>
+        <h2><a href="addMatiere.php">Ajouter une Matiere</a></h2>
+        <!-- Search form -->
+        <div class="container mt-3 mb-3">
+            <form method="GET">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Rechercher une matiere..." name="search" value="<?php echo htmlspecialchars($search); ?>">
+                    <button class="btn btn-outline-primary" type="submit">Rechercher</button>
+                </div>
+            </form>
+        </div>
+        <!-- Statistics -->
+        <p>Total Matières: <?php echo $totalMatieres; ?></p>
     </center>
     <table border="1" align="center" width="70%">
         <tr>
-            <th>Id Matiere</th>
-            <th>Nom</th>
-            <th>Niveau</th>
+            <th><a href="?sort=idm&order=<?= ($sortColumn === 'idm' && $sortOrder === 'asc') ? 'desc' : 'asc'; ?>">Id Matiere</a></th>
+            <th><a href="?sort=nom&order=<?= ($sortColumn === 'nom' && $sortOrder === 'asc') ? 'desc' : 'asc'; ?>">Nom</a></th>
+            <th><a href="?sort=niveau&order=<?= ($sortColumn === 'niveau' && $sortOrder === 'asc') ? 'desc' : 'asc'; ?>">Niveau</a></th>
             <th>Description</th>
+            <th>Update</th>
+            <th>Delete</th>
         </tr>
-        <?php
-        foreach ($matiereList as $matiere) {
-        ?>
+        <?php foreach ($matiereList as $matiere): ?>
             <tr>
                 <td><?= isset($matiere['idm']) ? $matiere['idm'] : ''; ?></td>
                 <td><?= isset($matiere['nom']) ? $matiere['nom'] : ''; ?></td>
@@ -81,18 +110,17 @@ lang="en"
                 <td><?= isset($matiere['description']) ? $matiere['description'] : ''; ?></td>
                 <td align="center">
                     <form method="POST" action="updateMatiere.php">
-                    <a href="updateMatiere.php?idm=<?php echo $matiere['idm']; ?>">Edit</a>
-                        <input type="hidden" value="<?php echo isset($matiere['idm']) ? $matiere['idm'] : ''; ?>" name="idm">
+                        <a href="updateMatiere.php?idm=<?= $matiere['idm']; ?>">Edit</a>
+                        <input type="hidden" value="<?= isset($matiere['idm']) ? $matiere['idm'] : ''; ?>" name="idm">
                     </form>
                 </td>
                 <td>
-                <a href="deleteMatiere.php?idm=<?php echo isset($matiere['idm']) ? $matiere['idm'] : ''; ?>">Delete</a>
+                    <a href="deleteMatiere.php?idm=<?= isset($matiere['idm']) ? $matiere['idm'] : ''; ?>">Delete</a>
                 </td>
             </tr>
-        <?php
-        }
-        ?>
+        <?php endforeach; ?>
     </table>
+</body>
  <!-- Layout wrapper -->
  <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">

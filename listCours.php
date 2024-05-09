@@ -1,11 +1,28 @@
 <?php
 include '../Controller/CoursC.php';
 
-$coursC = new CoursC(); 
+$coursC = new CoursC();
 $coursList = $coursC->listCours();
 
-?>
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+if (!empty($search)) {
+    $filteredCoursList = array_filter($coursList, function ($cours) use ($search) {
+        return stripos($cours['nom'], $search) !== false;
+    });
+    $coursList = $filteredCoursList;
+}
 
+$sort = isset($_GET['sort']) ? $_GET['sort'] : '';
+if ($sort === 'asc') {
+    usort($coursList, function ($a, $b) {
+        return strtolower($a['nom']) <=> strtolower($b['nom']);
+    });
+} elseif ($sort === 'desc') {
+    usort($coursList, function ($a, $b) {
+        return strtolower($b['nom']) <=> strtolower($a['nom']);
+    });
+}
+?>
 <html
 lang="en"
   class="light-style layout-menu-fixed"
@@ -21,46 +38,65 @@ lang="en"
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
+    />  <title>Liste des cours</title>
 
-    <title>Liste des cours</title>
+<meta name="description" content="" />
 
-    <meta name="description" content="" />
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
 
-    
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+  rel="stylesheet"
+/>
 
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
+<!-- Icons. Uncomment required icon fonts -->
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css" />
 
-    
-    <link rel="stylesheet" href="assets/vendor/fonts/boxicons.css" />
+<!-- Core CSS -->
+<link rel="stylesheet" href="assets/vendor/css/core.css" class="template-customizer-core-css" />
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+<link rel="stylesheet" href="assets/css/demo.css" />
 
-   
-    <link rel="stylesheet" href="assets/vendor/css/core.css" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="assets/css/demo.css" />
+<!-- Vendors CSS -->
+<link rel="stylesheet" href="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-    <link rel="stylesheet" href="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+<!-- Page CSS -->
 
-   
-    <script src="assets/vendor/js/helpers.js"></script>
-  -->
-    <script src="assets/js/config.js"></script>
+<!-- Helpers -->
+<script src="assets/vendor/js/helpers.js"></script>
+
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="assets/js/config.js"></script>
 </head>
-
 <body>
     <center>
         <h1>Liste Des Cours</h1>
-        <h2>
-            <a href="addCours.php">Ajouter un Cours</a> 
-        </h2>
+        <h2><a href="addCours.php">Ajouter un Cours</a></h2>
+        <!-- Search form -->
+    <div class="container mt-3 mb-3">
+        <form method="GET">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for a course..." name="search" value="<?php echo htmlspecialchars($search); ?>">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sorting links -->
+    <div>
+        <a href="?sort=asc">Sort by Name (A-Z)</a> |
+        <a href="?sort=desc">Sort by Name (Z-A)</a>
+    </div>
+
     </center>
+
+    
+    <!-- Table -->
     <table border="1" align="center" width="70%">
         <tr>
             <th>Id Cours</th>
@@ -71,9 +107,7 @@ lang="en"
             <th>Update</th>
             <th>Delete</th>
         </tr>
-        <?php
-        foreach ($coursList as $cours) {
-        ?>
+        <?php foreach ($coursList as $cours): ?>
             <tr>
                 <td><?= isset($cours['idc']) ? $cours['idc'] : ''; ?></td>
                 <td><?= isset($cours['nom']) ? $cours['nom'] : ''; ?></td>
@@ -82,20 +116,21 @@ lang="en"
                 <td><?= isset($cours['matiere_id']) ? $cours['matiere_id'] : ''; ?></td>
                 <td align="center">
                     <form method="POST" action="updateCours.php">
-                    <a href="updateCours.php?idc=<?php echo $cours['idc']; ?>">Edit</a>
-                        <input type="hidden" value="<?php echo isset($cours['idc']) ? $cours['idc'] : ''; ?>" name="id">
+                        <a href="updateCours.php?idc=<?= $cours['idc']; ?>">Edit</a>
+                        <input type="hidden" value="<?= isset($cours['idc']) ? $cours['idc'] : ''; ?>" name="id">
                     </form>
                 </td>
                 <td>
-                    <a href="deleteCours.php?idc=<?php echo isset($cours['idc']) ? $cours['idc'] : ''; ?>">Delete</a>
+                    <a href="deleteCours.php?idc=<?= isset($cours['idc']) ? $cours['idc'] : ''; ?>">Delete</a>
                 </td>
             </tr>
-        <?php
-        }
-        ?>
+        <?php endforeach; ?>
     </table>
-     <div class="layout-wrapper layout-content-navbar">
+</body>
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
+        <!-- Menu -->
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           <div class="app-brand demo">
@@ -166,6 +201,7 @@ lang="en"
           <div class="menu-inner-shadow"></div>
 
           <ul class="menu-inner py-1">
+            <!-- Dashboard -->
             <li class="menu-item">
               <a href="html/index.html" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
@@ -173,6 +209,7 @@ lang="en"
               </a>
             </li>
 
+            <!-- Layouts -->
             <li class="menu-item active open">
               <a href="html/javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-layout"></i>
@@ -275,13 +312,16 @@ lang="en"
                 </li>
               </ul>
             </li>
+            <!-- Components -->
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Components</span></li>
+            <!-- Cards -->
             <li class="menu-item">
               <a href="html/cards-basic.html" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
                 <div data-i18n="Basic">Cards</div>
               </a>
             </li>
+            <!-- User interface -->
             <li class="menu-item">
               <a href="html/javascript:void(0)" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-box"></i>
@@ -386,6 +426,7 @@ lang="en"
               </ul>
             </li>
 
+            <!-- Extended components -->
             <li class="menu-item">
               <a href="html/javascript:void(0)" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-copy"></i>
@@ -412,7 +453,9 @@ lang="en"
               </a>
             </li>
 
+            <!-- Forms & Tables -->
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Forms &amp; Tables</span></li>
+            <!-- Forms -->
             <li class="menu-item">
               <a href="html/javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -657,7 +700,8 @@ lang="en"
 
     <!-- Page JS -->
 
-    
+    <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
 </html>
+
