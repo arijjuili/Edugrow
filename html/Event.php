@@ -1,28 +1,32 @@
-<!-- Connexion au php en temps réel ( extraction de données à partir de la base de données MYSQL ) -->
 <?php
-include 'C:\xampp\htdocs\edugrow\Controller\EventC.php';
-include 'C:\xampp\htdocs\edugrow\Controller\CategoryC.php';
-require_once 'C:\xampp\htdocs\edugrow\Model\Event.php';
-require_once 'C:\xampp\htdocs\edugrow\Model\Category.php';
-
-// Include your Event and Category classes
+require_once 'C:\xampp\htdocs\edugrow\Controller\EventC.php';
+require_once 'C:\xampp\htdocs\edugrow\Controller\CategoryC.php';
 
 $EventC = new EventC();
-$ListeEvent = $EventC->ListeEvent();
-
 $CategoryC = new CategoryC();
+
 $ListeCategory = $CategoryC->ListeCategory();
 
-// Define getCategories function here
+// Function to get categories
 function getCategories()
 {
-  $CategoryC = new CategoryC();
-  return $CategoryC->ListeCategory();
+    global $CategoryC;
+    return $CategoryC->ListeCategory();
 }
+
+// Check if search query is submitted
+if (isset($_GET['search'])) {
+    $keyword = $_GET['keyword'];
+    // Perform search
+    $listEvents  = $EventC->searchEvent($keyword);
+} else {
+    // If no search query, fetch all events
+    $listEvents = $EventC->ListeEvent();
+}
+
+
+
 ?>
-
-<!-- Your HTML code follows -->
-
 
 
 
@@ -147,31 +151,8 @@ function getCategories()
               </a>
             </li>
 
-            <!-- Misc -->
-            <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
-            <li class="menu-item">
-              <a
-                href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
-                target="_blank"
-                class="menu-link"
-              >
-                <i class="menu-icon tf-icons bx bx-support"></i>
-                <div data-i18n="Support">Support</div>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a
-                href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                target="_blank"
-                class="menu-link"
-              >
-                <i class="menu-icon tf-icons bx bx-file"></i>
-                <div data-i18n="Documentation">Documentation</div>
-              </a>
-            </li>
           </ul>
         </aside>
-
         <!-- / Menu -->
 
         <!-- Layout container -->
@@ -195,69 +176,78 @@ function getCategories()
               <div class="card">
                 <h5 class="card-header">Events Table</h5>
                 <button id="showEventFormBtn" class="btn btn-primary">Show Form</button>
+                <a href="stat.php" class="btn btn-primary">Go to Statistics</a>
+
                 <div class="table-responsive text-nowrap">
-                  <table class="table table-dark">
-                    <thead>
-                      <tr>
-                        <th>Nom</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Image</th>
-                        <th>Category</th>
-  
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                   
 
 
-                    <tbody class="table-border-bottom-0">
-  <?php foreach ($ListeEvent as $Event): ?>
-      <tr>
-        <td><strong><?php echo $Event['Nom']; ?></strong></td>
-        <td><?php echo $Event['Date']; ?></td>
-        <td><?php echo $Event['Location']; ?></td>
-        <td>
-                      <img src="<?php echo $Event['img']; ?>" alt="Post Image" width="50"> <!-- Display the image -->
-
-        </td>
-        <td><?php echo $Event['category_title']; ?></td>
 
 
-        <td>
-          <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-              <i class="bx bx-dots-vertical-rounded"></i>
-            </button>
-            <div class="dropdown-menu">
- 
-        
-            <a href="edit_event.php?idE=<?php echo $Event['idE']; ?>" class="btn btn-sm btn-secondary me-2"
-      data-toggle="tooltip" data-original-title="Edit">Edit</a>
+
+                <table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Image</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <!-- Search form -->
+        <form method="POST" action="">
+            <input type="text" name="keyword" placeholder="Search Events...">
+            <button type="submit" name="search">Search</button>
+        </form>
+
+        <?php
+        // Check if search button is clicked
+        if (isset($_POST['search'])) {
+            $keyword = $_POST['keyword'];
+            // Call the searchEventByNom method to filter events
+            $listEvents = $EventC->searchEvent($keyword);
+        } else {
+            // If no search query, display all events
+            $listEvents = $EventC->ListeEvent();
+        }
+
+        // Loop through the events
+        foreach ($listEvents as $Event) :
+        ?>
+            <tr>
+                <td><strong><?php echo $Event['Nom']; ?></strong></td>
+                <td><?php echo $Event['Date']; ?></td>
+                <td><?php echo $Event['Location']; ?></td>
+                <td>
+                    <img src="<?php echo $Event['img']; ?>" alt="Event Image" width="50">
+                </td>
+                <td><?php echo $Event['category_title']; ?></td>
+                <td>
+                    <div class="dropdown">
+                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="edit_event.php?idE=<?php echo $Event['idE']; ?>" class="btn btn-sm btn-secondary me-2" data-toggle="tooltip" data-original-title="Edit">Edit</a>
+                            <a href="process_event.php?delete=<?php echo $Event['idE']; ?>" class="btn btn-sm btn-danger" data-toggle="tooltip" data-original-title="Delete">Delete</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
 
 
-              <a href="process_event.php?delete=<?php echo $Event['idE']; ?>"
-                              class="btn btn-sm btn-danger" data-toggle="tooltip" data-original-title="Delete">Delete</a>
 
 
-            </div>
-          </div>
-        </td>
-      </tr>
 
+    </div>
+</div>
 
-    
-  <?php endforeach; ?>
-  
-  
-  
-
-</tbody>
-
-                  </table>
-                </div>
-              </div>
-              <!--/ Bootstrap Dark Table -->
 
 
 <!-- Bootstrap Dark Table Category -->
@@ -275,7 +265,26 @@ function getCategories()
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <?php foreach ($ListeCategory as $Category): ?>
+
+        <!-- Search form -->
+        <form method="POST" action="">
+            <input type="text" name="keyword" placeholder="Search Events...">
+            <button type="submit" name="search">Search</button>
+        </form>
+
+        <?php
+        // Check if search button is clicked
+        if (isset($_POST['search'])) {
+            $keyword = $_POST['keyword'];
+            // Call the searchEventByNom method to filter events
+            $ListeCategory = $CategoryC->searchEvent($keyword);
+        } else {
+            // If no search query, display all events
+            $ListeCategory = $CategoryC->ListeCategory();
+        }
+
+        // Loop through the events
+     foreach ($ListeCategory as $Category): ?>
                       <tr>
                           <td><strong><?php echo $Category['Titre']; ?></strong></td>
                           <td><?php echo $Category['Description']; ?></td>
@@ -301,8 +310,6 @@ function getCategories()
         </table>
     </div>
 </div>
-
-
 
 
 
