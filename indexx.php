@@ -114,6 +114,51 @@
     </div>
 </li>
 
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        aria-expanded="true" aria-controls="collapseTwo">
+        <i class="fas fa-fw fa-cog"></i>
+        <span>Gestion Education</span>
+    </a>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header"> Les Ressources</h6>
+            <a class="collapse-item list-users" href="../listCours.php">Liste des Cours</a>
+            <a class="collapse-item add-users" href="../listMatiere.php">Liste des Matiéres</a>
+        </div>
+    </div>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        aria-expanded="true" aria-controls="collapseTwo">
+        <i class="fas fa-fw fa-cog"></i>
+        <span>Gestion Produits</span>
+    </a>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header"> Les Options</h6>
+            <a class="collapse-item list-users" href="../AdminC/listCommande.php">Liste des Commandes</a>
+            <a class="collapse-item add-users" href="../AdminC/listProducts.php">Liste des Produits</a>
+        </div>
+    </div>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+        aria-expanded="true" aria-controls="collapseTwo">
+        <i class="fas fa-fw fa-cog"></i>
+        <span>Events</span>
+    </a>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header"> Les Events</h6>
+            <a class="collapse-item list-events" href="html/Event.php">Liste des Events</a>
+        
+        </div>
+    </div>
+</li>
+
 
             <!-- Nav Item - Tables -->
             
